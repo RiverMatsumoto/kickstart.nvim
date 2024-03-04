@@ -1,5 +1,8 @@
 # kickstart.nvim
 
+# install:
+`https://github.com/RiverMatsumoto/kickstart.nvim.git`
+
 ## Introduction
 
 A starting point for Neovim that is:
