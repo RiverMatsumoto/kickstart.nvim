@@ -1,7 +1,7 @@
 # kickstart.nvim
 
 # install:
-`https://github.com/RiverMatsumoto/kickstart.nvim.git`
+`git clone https://github.com/RiverMatsumoto/kickstart.nvim.git "${XDG_CONFIG_HOME:-$HOME/.config}"/nvim`
 
 ## Introduction
 
