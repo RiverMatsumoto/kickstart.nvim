@@ -160,6 +160,13 @@ vim.keymap.set('n', '[d', vim.diagnostic.goto_prev, { desc = 'Go to previous [D]
 vim.keymap.set('n', ']d', vim.diagnostic.goto_next, { desc = 'Go to next [D]iagnostic message' })
 vim.keymap.set('n', '<leader>e', vim.diagnostic.open_float, { desc = 'Show diagnostic [E]rror messages' })
 vim.keymap.set('n', '<leader>q', vim.diagnostic.setloclist, { desc = 'Open diagnostic [Q]uickfix list' })
+vim.api.nvim_set_keymap('n', '\\', ':Neotree toggle current reveal_force_cwd<CR>', { noremap = true })
+vim.api.nvim_set_keymap('n', '|', ':Neotree toggle reveal<CR>', { noremap = true })
+vim.api.nvim_set_keymap('n', 'gd', ':Neotree float reveal_file=<cfile> reveal_force_cwd<cr>', { noremap = true })
+vim.api.nvim_set_keymap('n', '<C-s>', ':w<CR>', { noremap = true })
+vim.api.nvim_set_keymap('n', 'Y', 'yy', { noremap = true })
+vim.api.nvim_set_keymap('v', '<C-c>', '"+y', { noremap = true })
+-- vim.api.nvim_set_keymap('i', '<C-H>', '<C-W>', { noremap = true })
 
 -- Exit terminal mode in the builtin terminal with a shortcut that is a bit easier
 -- for people to discover. Otherwise, you normally need to press <C-\><C-n>, which
@@ -221,6 +228,7 @@ vim.opt.rtp:prepend(lazypath)
 require('lazy').setup {
   -- NOTE: Plugins can be added with a link (or for a github repo: 'owner/repo' link).
   'tpope/vim-sleuth', -- Detect tabstop and shiftwidth automatically
+  'voldikss/vim-floaterm',
 
   -- NOTE: Plugins can also be added by using a table,
   -- with the first argument being the link and the following
@@ -532,7 +540,12 @@ require('lazy').setup {
       --  - settings (table): Override the default settings passed when initializing the server.
       --        For example, to see the options for `lua_ls`, you could go to: https://luals.github.io/wiki/settings/
       local servers = {
-        clangd = {},
+        clangd = {
+          -- cmd = {
+          --   'clangd',
+          --   -- '--compile-commands-dir=build',
+          -- },
+        },
         -- gopls = {},
         pyright = {},
         -- rust_analyzer = {},
@@ -616,6 +629,7 @@ require('lazy').setup {
         lua = { 'stylua' },
         -- Conform can also run multiple formatters sequentially
         -- python = { "isort", "black" },
+        c = { 'clangd' },
         --
         -- You can use a sub-list to tell conform to run *until* a formatter
         -- is found.
@@ -675,14 +689,14 @@ require('lazy').setup {
         -- No, but seriously. Please read `:help ins-completion`, it is really good!
         mapping = cmp.mapping.preset.insert {
           -- Select the [n]ext item
-          ['<C-n>'] = cmp.mapping.select_next_item(),
+          ['<Tab>'] = cmp.mapping.select_next_item(),
           -- Select the [p]revious item
-          ['<C-p>'] = cmp.mapping.select_prev_item(),
+          ['<S-Tab>'] = cmp.mapping.select_prev_item(),
 
           -- Accept ([y]es) the completion.
           --  This will auto-import if your LSP supports it.
           --  This will expand snippets if the LSP sent a snippet.
-          ['<C-y>'] = cmp.mapping.confirm { select = true },
+          ['<CR>'] = cmp.mapping.confirm { select = true },
 
           -- Manually trigger a completion from nvim-cmp.
           --  Generally you don't need this, because nvim-cmp will display
@@ -820,6 +834,10 @@ require('lazy').setup {
 
 -- The line beneath this is called `modeline`. See `:help modeline`
 -- vim: ts=2 sts=2 sw=2 et
-vim.api.nvim_set_keymap('n', '<C-c>', '<cmd>lua require("Comment.api").toggle.linewise.current()<CR>', { noremap = true, silent = true })
-vim.api.nvim_set_keymap('x', '<C-c>', '<ESC><cmd>lua require("Comment.api").toggle.linewise(vim.fn.visualmode())<CR>', { noremap = true, silent = true })
+vim.api.nvim_set_keymap('n', '<C-_>', '<cmd>lua require("Comment.api").toggle.linewise.current()<CR>', { noremap = true, silent = true })
+vim.api.nvim_set_keymap('v', '<C-_>', '<ESC><cmd>lua require("Comment.api").toggle.linewise(vim.fn.visualmode())<CR>', { noremap = true, silent = true })
 vim.api.nvim_set_keymap('i', '<C-H>', '<C-W>', { noremap = true })
+
+-- map floaterm
+vim.api.nvim_set_keymap('n', '<C-t>', ':Floaterm toggle<CR>', { noremap = true })
+vim.api.nvim_set_keymap('i', '<C-t>', ':Floaterm toggle<CR>', { noremap = true })
