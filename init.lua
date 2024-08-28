@@ -125,6 +125,14 @@ vim.opt.smartcase = true
 -- Keep signcolumn on by default
 vim.opt.signcolumn = 'yes'
 
+-- spaces instead of tab
+vim.opt.expandtab = true
+
+-- tab width 4
+vim.opt.shiftwidth = 4
+vim.opt.tabstop = 4
+vim.opt.softtabstop = 4
+
 -- Decrease update time
 vim.opt.updatetime = 250
 vim.opt.timeoutlen = 300
@@ -164,6 +172,7 @@ vim.api.nvim_set_keymap('n', '\\', ':Neotree toggle current reveal_force_cwd<CR>
 vim.api.nvim_set_keymap('n', '|', ':Neotree toggle reveal<CR>', { noremap = true })
 vim.api.nvim_set_keymap('n', 'gd', ':Neotree float reveal_file=<cfile> reveal_force_cwd<cr>', { noremap = true })
 vim.api.nvim_set_keymap('n', '<C-s>', ':w<CR>', { noremap = true })
+vim.api.nvim_set_keymap('i', '<C-s>', ':w<CR>', { noremap = true })
 vim.api.nvim_set_keymap('n', 'Y', 'yy', { noremap = true })
 vim.api.nvim_set_keymap('v', '<C-c>', '"+y', { noremap = true })
 -- vim.api.nvim_set_keymap('i', '<C-H>', '<C-W>', { noremap = true })
@@ -324,7 +333,7 @@ require('lazy').setup {
       -- Useful for getting pretty icons, but requires special font.
       --  If you already have a Nerd Font, or terminal set up with fallback fonts
       --  you can enable this
-      -- { 'nvim-tree/nvim-web-devicons' }
+      { 'nvim-tree/nvim-web-devicons' },
     },
     config = function()
       -- Telescope is a fuzzy finder that comes with a lot of different things that
@@ -352,16 +361,36 @@ require('lazy').setup {
         -- You can put your default mappings / updates / etc. in here
         --  All the info you're looking for is in `:help telescope.setup()`
         --
-        -- defaults = {
-        --   mappings = {
-        --     i = { ['<c-enter>'] = 'to_fuzzy_refine' },
-        --   },
-        -- },
-        -- pickers = {}
+        defaults = {
+          -- mappings = {
+          --   i = { ['<c-enter>'] = 'to_fuzzy_refine' },
+          -- },
+          file_ignore_patterns = {
+            'node_modules',
+            'build',
+            '%.git$',
+            '%.cache$',
+            '%.o$',
+            '%.a$',
+            '%.out$',
+            '%.class$',
+            '%.pdf$',
+            '%.mkv$',
+            '%.mp4$',
+            '%.zip$',
+            '%.make$',
+          },
+        },
+        pickers = {
+          find_files = {
+            hidden = true,
+          },
+        },
         extensions = {
           ['ui-select'] = {
             require('telescope.themes').get_dropdown(),
           },
+          'projects',
         },
       }
 
@@ -405,6 +434,21 @@ require('lazy').setup {
         builtin.find_files { cwd = vim.fn.stdpath 'config' }
       end, { desc = '[S]earch [N]eovim files' })
     end,
+  },
+
+  {
+    'ErickKramer/nvim-ros2',
+    dependencies = {
+      'nvim-lua/plenary.nvim',
+      'nvim-telescope/telescope.nvim',
+      'nvim-treesitter/nvim-treesitter',
+    },
+    opts = {
+      -- Add any custom options here
+      autocmds = true,
+      telescope = true,
+      treesitter = true,
+    },
   },
 
   { -- LSP Configuration & Plugins
@@ -541,10 +585,10 @@ require('lazy').setup {
       --        For example, to see the options for `lua_ls`, you could go to: https://luals.github.io/wiki/settings/
       local servers = {
         clangd = {
-          -- cmd = {
-          --   'clangd',
-          --   -- '--compile-commands-dir=build',
-          -- },
+          cmd = {
+            'clangd',
+            '--compile-commands-dir=build',
+          },
         },
         -- gopls = {},
         pyright = {},
@@ -839,5 +883,43 @@ vim.api.nvim_set_keymap('v', '<C-_>', '<ESC><cmd>lua require("Comment.api").togg
 vim.api.nvim_set_keymap('i', '<C-H>', '<C-W>', { noremap = true })
 
 -- map floaterm
-vim.api.nvim_set_keymap('n', '<C-t>', ':Floaterm toggle<CR>', { noremap = true })
-vim.api.nvim_set_keymap('i', '<C-t>', ':Floaterm toggle<CR>', { noremap = true })
+vim.api.nvim_set_keymap('n', '<C-t>', ':FloatermToggle<CR>', { noremap = true })
+vim.api.nvim_set_keymap('i', '<C-t>', ':FloatermToggle<CR>', { noremap = true })
+vim.api.nvim_set_keymap('t', '<C-t>', '<C-\\><C-n>:FloatermToggle<CR>', { noremap = true, silent = true })
+--
+-- Define the toggle function
+local function toggle_neotree()
+  local manager = require 'neo-tree.sources.manager'
+  local renderer = require 'neo-tree.ui.renderer'
+
+  local state = manager.get_state 'filesystem'
+  local window_exists = renderer.window_exists(state)
+  if window_exists then
+    vim.cmd 'Neotree close'
+  else
+    vim.cmd 'Neotree show'
+  end
+end
+
+-- Ensure the function is accessible
+_G.toggle_neotree = toggle_neotree
+
+-- Map the toggle function to a key command
+vim.api.nvim_set_keymap('n', '<C-n>', ':lua toggle_neotree()<CR>', { noremap = true, silent = true })
+
+-- vim.api.nvim_set_keymap('n', '<C-f>', ':lua toggle_neotree()<CR>', { noremap = true, silent = true })
+-- vim.api.nvim_set_keymap('i', '<C-f>', ':lua toggle_neotree()<CR>', { noremap = true, silent = true })
+
+vim.api.nvim_set_keymap('i', '<C-S-Space>', '<cmd>lua vim.lsp.buf.signature_help()<CR>', { noremap = true, silent = true })
+vim.api.nvim_set_keymap('n', '<C-S-Space>', '<cmd>lua vim.lsp.buf.signature_help()<CR>', { noremap = true, silent = true })
+
+vim.api.nvim_create_augroup('EnsureTextWindowFocus', { clear = true })
+
+vim.api.nvim_create_autocmd('VimEnter', {
+  group = 'EnsureTextWindowFocus',
+  callback = function()
+    vim.defer_fn(function()
+      vim.cmd 'wincmd p'
+    end, 100) -- Adjust the delay if necessary
+  end,
+})
