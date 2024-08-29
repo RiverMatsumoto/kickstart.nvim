@@ -115,6 +115,10 @@ vim.opt.clipboard = 'unnamedplus'
 -- Enable break indent
 vim.opt.breakindent = true
 
+-- indentation
+-- vim.opt.autoindent = true
+-- vim.opt.smartindent = true
+
 -- Save undo history
 vim.opt.undofile = true
 
@@ -129,9 +133,9 @@ vim.opt.signcolumn = 'yes'
 vim.opt.expandtab = true
 
 -- tab width 4
-vim.opt.shiftwidth = 4
-vim.opt.tabstop = 4
-vim.opt.softtabstop = 4
+-- vim.opt.shiftwidth = 4
+-- vim.opt.tabstop = 4
+-- vim.opt.softtabstop = 4
 
 -- Decrease update time
 vim.opt.updatetime = 250
@@ -250,8 +254,15 @@ require('lazy').setup {
 
   -- "gc" to comment visual regions/lines
   { 'numToStr/Comment.nvim', opts = {} },
-  'sainnhe/gruvbox-material',
-
+  -- 'sainnhe/gruvbox-material',
+  'nvim-lualine/lualine.nvim',
+  {
+    'f4z3r/gruvbox-material.nvim',
+    name = 'gruvbox-material',
+    lazy = false,
+    priority = 1000,
+    opts = {},
+  },
   -- Here is a more advanced example where we pass configuration
   -- options to `gitsigns.nvim`. This is equivalent to the following lua:
   --    require('gitsigns').setup({ ... })
@@ -866,7 +877,7 @@ require('lazy').setup {
   --  Uncomment any of the lines below to enable them (you will need to restart nvim).
   --
   -- require 'kickstart.plugins.debug',
-  -- require 'kickstart.plugins.indent_line',
+  require 'kickstart.plugins.indent_line',
 
   -- NOTE: The import below can automatically add your own plugins, configuration, etc from `lua/custom/plugins/*.lua`
   --    This is the easiest way to modularize your config.
@@ -921,5 +932,19 @@ vim.api.nvim_create_autocmd('VimEnter', {
     vim.defer_fn(function()
       vim.cmd 'wincmd p'
     end, 100) -- Adjust the delay if necessary
+  end,
+})
+
+-- tabstop 2
+vim.api.nvim_create_augroup('CppIndent', { clear = true })
+
+-- Set tab width to 2 spaces for C++ files
+vim.api.nvim_create_autocmd('FileType', {
+  pattern = { 'cpp', 'c', 'cc', 'h', 'hpp' },
+  group = 'CppIndent',
+  callback = function()
+    vim.opt_local.tabstop = 2
+    vim.opt_local.shiftwidth = 2
+    vim.opt_local.expandtab = true
   end,
 })
